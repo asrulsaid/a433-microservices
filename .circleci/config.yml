@@ -33,6 +33,7 @@ jobs:
     executor: docker
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build and Push Docker Image
           command: sh build_push_image_karsajobs.sh
