@@ -1,0 +1,48 @@
+version: 2.1
+
+executors:
+  docker:
+    docker:
+      - image: docker:stable
+
+jobs:
+  lint-dockerfile:
+    executor: docker
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Run hadolint
+          command: docker run --rm --interactive hadolint/hadolint < ../Dockerfile
+
+  test-app:
+    docker:
+      - image: golang:1.15-alpine
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: go mod download
+      - run:
+          name: Run Unit Tests
+          command: go test -v -short --count=1 $(go list ./...)
+
+  build-app-karsajobs:
+    executor: docker
+    steps:
+      - checkout
+      - run:
+          name: Build and Push Docker Image
+          command: sh ../build_push_image_karsajobs.sh
+
+workflows:
+  version: 2
+  lint-test-and-build:
+    jobs:
+      - lint-dockerfile
+      - test-app:
+          requires:
+            - lint-dockerfile
+      - build-app-karsajobs:
+          requires:
+            - test-app
