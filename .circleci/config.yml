@@ -35,7 +35,7 @@ jobs:
       - checkout
       - run:
           name: Build and Push Docker Image
-          command: sh ../build_push_image_karsajobs.sh
+          command: sh build_push_image_karsajobs.sh
 
 workflows:
   version: 2
