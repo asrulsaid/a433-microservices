@@ -18,6 +18,8 @@ jobs:
   test-app:
     docker:
       - image: golang:1.15-alpine
+        environment:
+          CGO_ENABLED: 0
     steps:
       - checkout
       - run:
