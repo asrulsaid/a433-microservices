@@ -1,13 +1,19 @@
+# menggunakan versi 2.1
 version: 2.1
 
+# mendefinisikan executor docker untuk menjalankan perintah-perintah dalam container docker
 executors:
   docker:
     docker:
       - image: docker:stable
 
+# mendefinisikan jobs
 jobs:
+  # job lint-dockerfile
   lint-dockerfile:
+    # menggunakan executor docker
     executor: docker
+    # menyiapkan remote docker dan menjalankan hadolint
     steps:
       - checkout
       - setup_remote_docker
@@ -15,8 +21,11 @@ jobs:
           name: Run hadolint
           command: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
+  # job build-app-karsajobs-ui
   build-app-karsajobs-ui:
+    # menggunakan executor docker
     executor: docker
+    # menyiapkan remote docker dan menjalankan script untuk build dan push image karsajobs-ui
     steps:
       - checkout
       - setup_remote_docker
@@ -24,9 +33,12 @@ jobs:
           name: Build and Push Docker Image
           command: sh build_push_image_karsajobs_ui.sh
 
+# membuat workflow dengan nama lint-and-build
 workflows:
+  # menggunakan versi 2
   version: 2
   lint-and-build:
+    # menjalankan job lint-dockerfile dan build-app-karsajobs-ui
     jobs:
       - lint-dockerfile
       - build-app-karsajobs-ui:
