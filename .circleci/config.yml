@@ -1,13 +1,19 @@
+# menggunakan versi 2.1
 version: 2.1
 
+# mendefinsikan executor docker untuk menjalankan perintah-perintah dalam container docker
 executors:
   docker:
     docker:
       - image: docker:stable
 
+# mendefinisikan jobs
 jobs:
+  # job lint-dockerfile
   lint-dockerfile:
+    # menggunakan executor docker
     executor: docker
+    # menyiapkan remote docker dan menjalankan hadolint
     steps:
       - checkout
       - setup_remote_docker
@@ -15,11 +21,14 @@ jobs:
           name: Run hadolint
           command: docker run --rm --interactive hadolint/hadolint < Dockerfile
 
+  # job test-app
   test-app:
+    # menggunakan docker image Golang v.1.15
     docker:
       - image: golang:1.15-alpine
         environment:
           CGO_ENABLED: 0
+    # menginstall dependencies dan menjalankan unit test pada aplikasi Golang
     steps:
       - checkout
       - run:
@@ -29,8 +38,11 @@ jobs:
           name: Run Unit Tests
           command: go test -v -short --count=1 $(go list ./...)
 
+  # job build-app-karsajobs
   build-app-karsajobs:
+    # menggunakan executor docker
     executor: docker
+    # menyiapkan remote docker dan menjalankan script untuk build dan push image karsajobs
     steps:
       - checkout
       - setup_remote_docker
@@ -38,9 +50,12 @@ jobs:
           name: Build and Push Docker Image
           command: sh build_push_image_karsajobs.sh
 
+# membuat workflow dengan nama lint-test-and-build
 workflows:
+  # menggunakan versi 2
   version: 2
   lint-test-and-build:
+    # menjalankan job lint-dockerfile, test-app, dan build-app-karsajobs
     jobs:
       - lint-dockerfile
       - test-app:
